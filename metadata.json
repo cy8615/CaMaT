@@ -1,0 +1,7 @@
+{
+  "name": "CantoMando Translate",
+  "description": "Instant bidirectional translation between Mandarin and Cantonese using Gemini AI.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}

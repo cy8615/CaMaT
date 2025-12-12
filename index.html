@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M50,0 A50,50 0 0,1 50,100' fill='%233b82f6'/%3E%3Cpath d='M50,0 A50,50 0 0,0 50,100' fill='%23ef4444'/%3E%3Ccircle cx='50' cy='25' r='12.5' fill='%23ef4444'/%3E%3Ccircle cx='50' cy='75' r='12.5' fill='%233b82f6'/%3E%3C/svg%3E" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>普通话 <-> 粤语 翻译助手</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      @import url('https://rsms.me/inter/inter.css');
+      html { font-family: 'Inter', sans-serif; }
+      
+      /* Prevent text selection on long press for the button */
+      .no-select {
+        -webkit-touch-callout: none;
+        -webkit-user-select: none;
+        -khtml-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+      }
+      body {
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+    </style>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['Inter', 'sans-serif'],
+            },
+            colors: {
+              primary: '#ef4444', // Red
+              secondary: '#3b82f6', // Blue
+              // New Palette
+              mandarin: {
+                bg: 'bg-sky-500',
+                text: 'text-white',
+                bubble: 'bg-sky-50 dark:bg-sky-900/50',
+                tag: 'bg-sky-100 text-sky-700 dark:bg-sky-900 dark:text-sky-300'
+              },
+              cantonese: {
+                bg: 'bg-rose-500',
+                text: 'text-white',
+                bubble: 'bg-rose-50 dark:bg-rose-900/50',
+                tag: 'bg-rose-100 text-rose-700 dark:bg-rose-900 dark:text-rose-300'
+              },
+            },
+            animation: {
+              'fade-in': 'fadeIn 0.5s ease-out forwards',
+              'pulse-slow': 'pulse 2.5s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+              'ping-slow': 'ping 2s cubic-bezier(0, 0, 0.2, 1) infinite',
+            },
+            keyframes: {
+              fadeIn: {
+                '0%': { opacity: '0', transform: 'translateY(10px)' },
+                '100%': { opacity: '1', transform: 'translateY(0)' },
+              },
+            }
+          }
+        }
+      }
+    </script>
+  <script type="importmap">
+{
+  "imports": {
+    "@google/genai": "https://esm.sh/@google/genai@^1.33.0",
+    "react": "https://esm.sh/react@^19.2.3",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
+    "react/": "https://esm.sh/react@^19.2.3/"
+  }
+}
+</script>
+</head>
+  <body>
+    <div id="root"></div>
+  </body>
+</html>
