@@ -16,6 +16,7 @@ const App: React.FC = () => {
 
   // Refs
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const streamRef = useRef<MediaStream | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
   const timerRef = useRef<number | null>(null);
   const scrollEndRef = useRef<HTMLDivElement>(null);
@@ -44,6 +45,9 @@ const App: React.FC = () => {
   useEffect(() => {
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach(track => track.stop());
+      }
     };
   }, []);
 
@@ -56,6 +60,7 @@ const App: React.FC = () => {
     try {
       setErrorMsg(null);
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      streamRef.current = stream; // Keep a direct reference to the stream
       
       const mediaRecorder = new MediaRecorder(stream, {
         mimeType: MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm' : ''
@@ -86,8 +91,11 @@ const App: React.FC = () => {
       }, 100);
 
     } catch (err) {
-      console.error("Error accessing microphone:", err);
-      // This will catch if the user denies the permission prompt in real-time
+      console.error("Error starting recording:", err);
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach(track => track.stop()); // Cleanup on error
+        streamRef.current = null;
+      }
       setErrorMsg("无法访问麦克风，请授予权限后重试。");
     }
   };
@@ -96,7 +104,9 @@ const App: React.FC = () => {
     if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
       mediaRecorderRef.current.stop();
     }
+    // Set states after calling stop()
     setIsRecording(false);
+    setIsProcessing(true); // Set processing immediately for better UX
     if (timerRef.current) {
       clearInterval(timerRef.current);
       timerRef.current = null;
@@ -104,20 +114,27 @@ const App: React.FC = () => {
   };
 
   const handleRecordingStop = async () => {
-    // Release the microphone stream here, ensuring the recorder has finished.
-    if (mediaRecorderRef.current) {
-      mediaRecorderRef.current.stream.getTracks().forEach(track => track.stop());
+    // Reliably release the microphone stream.
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach(track => track.stop());
+      streamRef.current = null;
     }
 
-    if (audioChunksRef.current.length === 0) return;
+    if (audioChunksRef.current.length === 0) {
+      setIsProcessing(false);
+      return;
+    }
 
     const audioBlob = new Blob(audioChunksRef.current, {
        type: mediaRecorderRef.current?.mimeType || 'audio/webm' 
     });
 
-    if (audioBlob.size < 1000) return;
-
-    setIsProcessing(true);
+    if (audioBlob.size < 1000) {
+      setIsProcessing(false);
+      return;
+    }
+    
+    // isProcessing is already true from stopRecording()
 
     try {
       const base64Audio = await blobToBase64(audioBlob);
